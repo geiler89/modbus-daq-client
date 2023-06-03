@@ -18,9 +18,15 @@ public:
     explicit ModbusMaster(QObject *parent = nullptr);
     ~ModbusMaster();
 
-    void start(bool tcp = true);
-
 signals:
+    void sendMessage(QString message);
+    void selectReadWriteOperation();
+
+public slots:
+    void setSerialConnectionParameters();
+    void setTCPConnectionParameters(QString ip, uint port);
+    void setReadParameters(quint8 modbusAddres, qint16 startRegistersAddress,
+                        quint16 numberRegistersRead, quint8 addressModbusSlave);
 
 private slots:
     void onErrorOcurred(QModbusDevice::Error error);
@@ -29,16 +35,11 @@ private slots:
 
 private:
     QModbusClient *modbusDevice = nullptr;
-    QTextStream cin, cout;
     bool isTCP;
 
-    void setSerialConnectionParameters();
-    void setTCPConnectionParameters();
-    quint8 selectReadWriteOption();
     quint8 selectTypeModbusAddres();
-    void readParameters();
     void writeParameters();
-    uint cliOption(uint begin = 0, uint end = 0);
+    void connectToSlaveDevice();
 };
 
 #endif // MODBUSMASTER_H
