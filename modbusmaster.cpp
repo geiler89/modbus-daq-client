@@ -60,8 +60,8 @@ void ModbusMaster::onReadReady()
         const QModbusDataUnit unit = reply->result();
         for (int i = 0, total = int(unit.valueCount()); i < total; ++i) {
             const QString entry = tr("Address: %1, Value: %2").arg(unit.startAddress() + i)
-                                     .arg(QString::number(unit.value(i),
-                                          unit.registerType() <= QModbusDataUnit::Coils ? 10 : 16));
+                                     .arg(QString::number(unit.value(i)/*,
+                                          unit.registerType() <= QModbusDataUnit::Coils ? 10 : 16*/));
             qInfo() << entry;
         }
     } else if (reply->error() == QModbusDevice::ProtocolError) {
@@ -88,45 +88,28 @@ void ModbusMaster::setTCPConnectionParameters(QString ip, uint port)
     connectToSlaveDevice();
 }
 
-void ModbusMaster::setReadParameters(quint8 modbusAddres, qint16 startRegistersAddress, quint16 numberRegistersRead, quint8 addressModbusSlave)
+void ModbusMaster::setParametersForOperations(quint8 modbusAddres, quint16 startRegistersAddress, quint16 numberRegistersRead,
+                                              quint8 addressModbusSlave, QList<quint16> valuesToWrite)
 {
-    QModbusReply *reply = modbusDevice->sendReadRequest(
-                QModbusDataUnit(static_cast<QModbusDataUnit::RegisterType>(modbusAddres),
-                                startRegistersAddress, numberRegistersRead),
-                addressModbusSlave);
+    QModbusDataUnit block(static_cast<QModbusDataUnit::RegisterType>(modbusAddres),
+                          startRegistersAddress, numberRegistersRead);
+    QModbusReply *reply = nullptr;
+
+    if (valuesToWrite.isEmpty())
+    {
+        reply = modbusDevice->sendReadRequest(block, addressModbusSlave);
+    } else
+    {
+        for (int i = 0; i < valuesToWrite.size(); i++)
+        {
+            block.setValue(i, valuesToWrite.at(i));
+        }
+
+        reply = modbusDevice->sendWriteRequest(block, addressModbusSlave);
+    }
 
     if (!reply->isFinished())
         connect(reply, &QModbusReply::finished, this, &ModbusMaster::onReadReady);
     else
         delete reply; // broadcast replies return immediately
-}
-
-void ModbusMaster::writeParameters()
-{
-//    QString option;
-//    bool validateConversion;
-//    quint8 selectedOption = 0;
-
-//    if (modbusDevice->connectDevice())
-//    {
-//        qInfo() << "*****Device connected*****";
-//        qInfo() << "Please, select 1 to read or 2 to write";
-
-//        do {
-//            in >> option;
-//            option.toUInt(&validateConversion);
-
-//            if (!validateConversion)
-//            {
-//                qInfo() << "Please, insert a number";
-//            } else
-//            {
-//                 selectedOption = option.toUInt();
-//                 if (selectedOption > 2 || selectedOption < 1)
-//                 {
-//                     qInfo() << "Please, select a correct option number";
-//                 }
-//            }
-//        } while (!validateConversion || (selectedOption > 2 || selectedOption < 1));
-//    }
 }

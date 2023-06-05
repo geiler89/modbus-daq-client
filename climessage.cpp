@@ -73,49 +73,78 @@ void CLIMessage::setModbusTCPConnectionParameters()
     emit sendModbusTCPConnectionParameters(ip, port.toUInt());
 }
 
-void CLIMessage::setReadParameters()
+void CLIMessage::getTypeModbusAddres(quint8 &pModbusAddres)
 {
     printMessage("Please, select the type of modbus addres to read:\n"
                  "1 - Discrete Inputs\n2 - Coils\n"
                  "3 - Input Registers\n4 - Holding Registers");
-    quint8 modbusAddres = cliOption(1, 4);
+    pModbusAddres = cliOption(1, 4);
+}
 
+void CLIMessage::getStartAddress(quint16 &pStartRegistersAddress)
+{
     printMessage("Please, select the start address:");
-    qint16 startRegistersAddress = cliOption();
+    pStartRegistersAddress = cliOption();
+}
 
+void CLIMessage::getNumberEntries(quint16 &pNumberRegisters)
+{
     printMessage("Please, select the number of entries to read:");
-    quint16 numberRegistersRead;
     do {
-        numberRegistersRead = cliOption();
+        pNumberRegisters = cliOption();
 
-        if(numberRegistersRead == 0)
+        if(pNumberRegisters == 0)
             printMessage("Please, select a number greater than zero:");
-    } while (numberRegistersRead == 0);
+    } while (pNumberRegisters == 0);
+}
 
+void CLIMessage::getAddressModbusServer(quint8 &pAddressModbusSlave)
+{
     printMessage("Please, select the address of modbus server:");
-    quint8 addressModbusSlave;
     do {
-        addressModbusSlave = cliOption();
+        pAddressModbusSlave = cliOption();
 
-        if(addressModbusSlave == 0)
+        if(pAddressModbusSlave == 0)
             printMessage("Please, select a number greater than zero:");
-    } while (addressModbusSlave == 0);
+    } while (pAddressModbusSlave == 0);
+}
 
-    emit sendParametersForReading(modbusAddres, startRegistersAddress,
-                                  numberRegistersRead, addressModbusSlave);
+void CLIMessage::setModbusServerParameters(quint8 &pModbusAddres, quint16 &pStartRegistersAddress,
+                                           quint16 &pNumberRegisters, quint8 &pAddressModbusSlave)
+{
+    getTypeModbusAddres(pModbusAddres);
+    getStartAddress(pStartRegistersAddress);
+    getNumberEntries(pNumberRegisters);
+    getAddressModbusServer(pAddressModbusSlave);
+}
+
+void CLIMessage::setValuesToWrite(quint16 numberRegistersToWrite, QList<quint16> &pValuesToWrite)
+{
+    printMessage(QString("Please, enter the %1 values to be written:").arg(numberRegistersToWrite));
+    quint16 value;
+    do {
+        in.flush();
+        in >> value;
+        pValuesToWrite << value;
+        numberRegistersToWrite--;
+    } while (numberRegistersToWrite != 0);
 }
 
 void CLIMessage::selectReadWriteOption()
 {
+    quint8 modbusAddres;
+    quint16 startRegistersAddress;
+    quint16 numberRegisters;
+    quint8 addressModbusSlave;
+    QList<quint16> valuesToWrite;
+
     printMessage("Please, select 1 to read or 2 to write");
     quint8 readWrite = cliOption(1,2);
 
-    switch (readWrite)
-    {
-        case 1:
-        setReadParameters();
-            break;
-        case 2:
-            break;
-    }
+    setModbusServerParameters(modbusAddres, startRegistersAddress, numberRegisters, addressModbusSlave);
+
+    if (readWrite == 2)
+        setValuesToWrite(numberRegisters, valuesToWrite);
+
+    emit sendParametersForOperations(modbusAddres, startRegistersAddress, numberRegisters, addressModbusSlave, valuesToWrite);
 }

@@ -16,9 +16,8 @@ public:
 signals:
     void sendModbusRTUConnectionParameters();
     void sendModbusTCPConnectionParameters(QString ip, uint port);
-    void sendParametersForReading(quint8 modbusAddres, qint16 startRegistersAddress,
-                                  quint16 numberRegistersRead, quint8 addressModbusSlave);
-    void initDataReading();
+    void sendParametersForOperations(quint8 modbusAddres, quint16 startRegistersAddress,
+                                     quint16 numberRegistersRead, quint8 addressModbusSlave, QList<quint16> valuesToWrite);
 
 public slots:
     void printMessage(QString message);
@@ -30,7 +29,13 @@ private:
     uint cliOption(uint begin = 0, uint end = 0);
     void setModbusRTUConnectionParameters();
     void setModbusTCPConnectionParameters();
-    void setReadParameters();
+    void getTypeModbusAddres(quint8 &pModbusAddres);
+    void getStartAddress(quint16 &pStartRegistersAddress);
+    void getNumberEntries(quint16 &pNumberRegisters);
+    void getAddressModbusServer(quint8 &pAddressModbusSlave);
+    void setModbusServerParameters(quint8 &pModbusAddres, quint16 &pStartRegistersAddress,
+                                   quint16 &pNumberRegisters, quint8 &pAddressModbusSlave);
+    void setValuesToWrite(quint16 numberRegistersToWrite, QList<quint16> &pValuesToWrite);
 };
 
 #endif // CLIMESSAGE_H

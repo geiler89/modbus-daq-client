@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
                      messages, &CLIMessage::selectReadWriteOption);
     QObject::connect(messages, &CLIMessage::sendModbusTCPConnectionParameters,
                      master, &ModbusMaster::setTCPConnectionParameters);
-    QObject::connect(messages, &CLIMessage::sendParametersForReading,
-                     master, &ModbusMaster::setReadParameters);
+    QObject::connect(messages, &CLIMessage::sendParametersForOperations,
+                     master, &ModbusMaster::setParametersForOperations);
 
     messages->start();
 

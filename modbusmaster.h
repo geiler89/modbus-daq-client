@@ -25,8 +25,8 @@ signals:
 public slots:
     void setSerialConnectionParameters();
     void setTCPConnectionParameters(QString ip, uint port);
-    void setReadParameters(quint8 modbusAddres, qint16 startRegistersAddress,
-                        quint16 numberRegistersRead, quint8 addressModbusSlave);
+    void setParametersForOperations(quint8 modbusAddres, quint16 startRegistersAddress,
+                                    quint16 numberRegistersRead, quint8 addressModbusSlave, QList<quint16> valuesToWrite);
 
 private slots:
     void onErrorOcurred(QModbusDevice::Error error);
@@ -35,10 +35,7 @@ private slots:
 
 private:
     QModbusClient *modbusDevice = nullptr;
-    bool isTCP;
 
-    quint8 selectTypeModbusAddres();
-    void writeParameters();
     void connectToSlaveDevice();
 };
 
