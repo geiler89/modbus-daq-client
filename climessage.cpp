@@ -1,4 +1,5 @@
 #include "climessage.h"
+#include "validateuserinputs.h"
 
 CLIMessage::CLIMessage(QObject *parent) : QObject(parent), in(stdin), out(stdout)
 {
@@ -64,9 +65,17 @@ void CLIMessage::setModbusRTUConnectionParameters()
 void CLIMessage::setModbusTCPConnectionParameters()
 {
     QString ip, port;
+    bool validIp;
 
     printMessage("Enter IP address:");
-    in >> ip;
+    do {
+        in >> ip;
+        validIp = validateIpAddress(ip);
+
+        if (!validIp)
+            printMessage("Please, you must enter a correct IP address.");
+    } while (!validIp);
+
     printMessage("Enter port:");
     in >> port;
 

@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         climessage.cpp \
         modbusmaster.cpp \
-        main.cpp
+        main.cpp \
+        validateuserinputs.cpp
 
 HEADERS += \
         climessage.h \
-        modbusmaster.h
+        modbusmaster.h \
+        validateuserinputs.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

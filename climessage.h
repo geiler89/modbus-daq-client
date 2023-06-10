@@ -10,6 +10,7 @@ class CLIMessage : public QObject
     Q_OBJECT
 public:
     explicit CLIMessage(QObject *parent = nullptr);
+    ~CLIMessage() = default;
 
     void start();
 
